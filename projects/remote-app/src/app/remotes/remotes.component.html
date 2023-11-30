@@ -1,0 +1,10 @@
+<h1 style="text-align: center;">Employee Details</h1>
+<div class="actionButtons">
+  <button class="btn" (click)="addNewRow()">Add New Row</button>
+  <button class="btn" (click)="deleteSelectedRow()">Delete Row</button>
+</div>
+
+  <ag-grid-angular style="width: 100%; height: 394px;" class="ag-theme-alpine" [gridOptions]="gridOptions"
+  [rowData]="rowData"
+  [columnDefs]="columnDefs" [animateRows]="true" (cellEditingStopped)="onCellEditingStopped($event)"  [rowSelection]="rowSelection">
+  </ag-grid-angular>

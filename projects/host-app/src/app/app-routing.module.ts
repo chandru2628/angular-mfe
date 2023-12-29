@@ -18,6 +18,26 @@ const routes: Routes = [
       exposedModule: './Module'
     })
       .then(m => m.RemotesModule)
+  },
+  {
+    path: 'adduser',
+    // loadChildren:()=>import('remoteApp/Module').then(m=>m.RemotesModule)
+    loadChildren: () => loadRemoteModule({
+      type: 'module',
+      remoteEntry: 'http://localhost:5201/remoteEntry.js',
+      exposedModule: './Module'
+    })
+      .then(m => m.HomeModule)
+  },
+  {
+    path: 'edituser',
+    // loadChildren:()=>import('remoteApp/Module').then(m=>m.RemotesModule)
+    loadChildren: () => loadRemoteModule({
+      type: 'module',
+      remoteEntry: 'http://localhost:5201/remoteEntry.js',
+      exposedModule: './Module'
+    })
+      .then(m => m.HomeModule)
   }
 ];
 

@@ -25,7 +25,9 @@
 							"projects/host-app/src/assets"
 						],
 						"styles": [
-							"projects/host-app/src/styles.css"
+							"projects/styles.css",
+							"node_modules/bootstrap/dist/css/bootstrap.css",
+							"node_modules/ngx-spinner/animations/ball-scale-multiple.css"
 						],
 						"scripts": [],
 						"extraWebpackConfig": "projects/host-app/webpack.config.js",
@@ -97,7 +99,9 @@
 							"projects/host-app/src/assets"
 						],
 						"styles": [
-							"projects/host-app/src/styles.css"
+							"projects/styles.css",
+							"node_modules/bootstrap/dist/css/bootstrap.css",
+							"node_modules/ngx-spinner/animations/ball-scale-multiple.css"
 						],
 						"scripts": []
 					}
@@ -126,7 +130,9 @@
 							"projects/remote-app/src/assets"
 						],
 						"styles": [
-							"projects/remote-app/src/styles.css"
+							"projects/styles.css",
+							"node_modules/bootstrap/dist/css/bootstrap.css",
+							"node_modules/ngx-spinner/animations/ball-scale-multiple.css"
 						],
 						"scripts": [],
 						"extraWebpackConfig": "projects/remote-app/webpack.config.js",
@@ -198,7 +204,114 @@
 							"projects/remote-app/src/assets"
 						],
 						"styles": [
-							"projects/remote-app/src/styles.css"
+							"projects/styles.css",
+							"node_modules/bootstrap/dist/css/bootstrap.css",
+							"node_modules/ngx-spinner/animations/ball-scale-multiple.css"
+						],
+						"scripts": []
+					}
+				}
+			}
+		},
+		"remote-app-2": {
+			"projectType": "application",
+			"schematics": {},
+			"root": "projects/remote-app-2",
+			"sourceRoot": "projects/remote-app-2/src",
+			"prefix": "app",
+			"architect": {
+				"build": {
+					"builder": "ngx-build-plus:browser",
+					"options": {
+						"outputPath": "dist/remote-app-2",
+						"index": "projects/remote-app-2/src/index.html",
+						"main": "projects/remote-app-2/src/main.ts",
+						"polyfills": [
+							"zone.js"
+						],
+						"tsConfig": "projects/remote-app-2/tsconfig.app.json",
+						"assets": [
+							"projects/remote-app-2/src/favicon.ico",
+							"projects/remote-app-2/src/assets"
+						],
+						"styles": [
+							"projects/styles.css",
+							"node_modules/bootstrap/dist/css/bootstrap.css",
+							"node_modules/ngx-spinner/animations/ball-scale-multiple.css"
+						],
+						"scripts": [],
+						"extraWebpackConfig": "projects/remote-app-2/webpack.config.js",
+						"commonChunk": false
+					},
+					"configurations": {
+						"production": {
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "500kb",
+									"maximumError": "1mb"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "2kb",
+									"maximumError": "4kb"
+								}
+							],
+							"outputHashing": "all",
+							"extraWebpackConfig": "projects/remote-app-2/webpack.prod.config.js"
+						},
+						"development": {
+							"buildOptimizer": false,
+							"optimization": false,
+							"vendorChunk": true,
+							"extractLicenses": false,
+							"sourceMap": true,
+							"namedChunks": true
+						}
+					},
+					"defaultConfiguration": "production"
+				},
+				"serve": {
+					"builder": "ngx-build-plus:dev-server",
+					"configurations": {
+						"production": {
+							"browserTarget": "remote-app-2:build:production",
+							"extraWebpackConfig": "projects/remote-app-2/webpack.prod.config.js"
+						},
+						"development": {
+							"browserTarget": "remote-app-2:build:development"
+						}
+					},
+					"defaultConfiguration": "development",
+					"options": {
+						"port": 5201,
+						"publicHost": "http://localhost:5201",
+						"extraWebpackConfig": "projects/remote-app-2/webpack.config.js"
+					}
+				},
+				"extract-i18n": {
+					"builder": "ngx-build-plus:extract-i18n",
+					"options": {
+						"browserTarget": "remote-app-2:build",
+						"extraWebpackConfig": "projects/remote-app-2/webpack.config.js"
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"polyfills": [
+							"zone.js",
+							"zone.js/testing"
+						],
+						"tsConfig": "projects/remote-app-2/tsconfig.spec.json",
+						"assets": [
+							"projects/remote-app-2/src/favicon.ico",
+							"projects/remote-app-2/src/assets"
+						],
+						"styles": [
+							"projects/styles.css",
+							"node_modules/bootstrap/dist/css/bootstrap.css",
+							"node_modules/ngx-spinner/animations/ball-scale-multiple.css"
 						],
 						"scripts": []
 					}

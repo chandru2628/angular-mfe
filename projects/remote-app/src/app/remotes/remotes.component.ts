@@ -1,141 +1,251 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { GridOptions } from "ag-grid-community";
+import { CommonService } from '../services/common.service';
+import { Router } from '@angular/router';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { fromEvent, merge, of, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-remotes',
   templateUrl: './remotes.component.html',
   styleUrls: ['./remotes.component.css']
 })
-export class RemotesComponent {
+
+export class RemotesComponent implements OnInit,OnDestroy{
   gridOptions: GridOptions;
   params: any;
   rowData:any=[];
   columnDefs:any=[];
-  rowSelection: 'single' | 'multiple' = 'multiple';
-  isOnline: boolean = true;
-  
-  constructor() {
+  rowSelection: 'single' | 'multiple' = 'single';
+  isOnline: boolean=false;
+  networkStatus$: Subscription = Subscription.EMPTY;
+  constructor(private commonService:CommonService,private router:Router, private spinner:NgxSpinnerService) {
     this.gridOptions = <GridOptions>{
       enableSorting: true,
       // enable filtering 
-      enableFilter: true
+      enableFilter: true,
+      rowSelection: 'single'
     };
     this.columnDefs = [
       {
         headerName: "ID",
         field: "id",
+        width: 100
+      },
+      {
+        headerName: "First Name",
+        field: "firstName",
         width: 180
       },
       {
-        headerName: "Name",
-        field: "name",
-        width: 250,
-        editable:true
+        headerName: "Last Name",
+        field: "lastName",
+        width: 180 
       },
       {
-        headerName: "Age",
-        field: "age",
-        width: 200,
-        editable:true
+        headerName: "Email",
+        field: "email",
+        width: 180 
       },
       {
-        headerName: "Gender",
-        field: "gender",
-        width: 200,
-        editable:true
+        headerName: "Phone Number",
+        field: "phoneNumber",
+        width: 180  
       },
       {
-        headerName: "Department",
-        field: "department",
-        width: 250,
-        editable:true
+        headerName: "Address 1",
+        field: "address1",
+        width: 100
       },
       {
-        headerName:"Location",
-        field:"location",
-        width:250,
-        editable:true
+        headerName: "Address 2",
+        field: "address2",
+        width: 100
+      },
+      {
+        headerName: "City",
+        field: "city",
+        width: 100
+      },
+      {
+        headerName: "State",
+        field: "state",
+        width: 100,
+      },
+      {
+        headerName: "Zipcode",
+        field: "zipCode",
+        width: 100 
+      },
+      {
+        headerName:"Country",
+        field:"country",
+        width:100
+      },
+      {
+        headerName:"Qualification",
+        field:"qualification",
+        width:150
+      },
+      {
+        headerName:"Comments",
+        field:"comments",
+        width:150
       }
 
     ];
-
-    this.rowData = [
-      { id: 1, name:"Albert",age:27,gender:"Male",department:"Development",location:"United States" },
-      { id: 2, name:"Brendon",age:25,gender:"Male",department:"Finance",location:"United Kingdom" },
-      { id: 3, name:"Cherry",age:35,gender:"Male",department:"Admin",location:"United Arab Emirates" },
-      { id: 4, name:"Daryll",age:28,gender:"Male",department:"HR",location:"United States"},
-      { id: 5, name:"Edvert",age:26,gender:"Male",department:"Development",location:"United States" },
-      { id: 6, name:"Franklin",age:22,gender:"Male",department:"Finance",location:"United Kingdom"},
-      { id: 7, name:"Green",age:32,gender:"Male",department:"Admin",location:"United Arab Emirates" },
-      { id: 8, name:"Henry",age:29,gender:"Male",department:"HR" ,location:"United States"},
-      { id: 9, name:"Irvine",age:33,gender:"Male",department:"Development" ,location:"United States"},
-      { id: 10, name:"John",age:30,gender:"Male",department:"Finance",location:"United Kingdom" },
-      { id: 11, name:"Kennedy",age:58,gender:"Male",department:"CEO",location:"United States" }
-    ]
   }
 
   ngOnInit() {
     // Check online/offline status when the component is initialized
     this.checkOnlineStatus();
+    this.getUsers();
+  }
 
-    // Listen for changes in online/offline status
-    window.addEventListener('online', () => this.updateOnlineStatus());
-    window.addEventListener('offline', () => this.updateOnlineStatus());
+  private getUsers() {
+    this.spinner.show();
+    if (this.isOnline) {
+      this.commonService.get('users').subscribe({
+        next: (data: any) => {
+          this.rowData = data;
+          localStorage.setItem('existingData', JSON.stringify(this.rowData));
+          this.spinner.hide();
+        },
+        error: (err) => {
+          console.log(err);
+          this.spinner.hide();
+          // this.toaster.showFailToaster(err.error.text, 'Error');
+        }
+      })
+    } else {
+      this.rowData=[];
+      if (localStorage.getItem('existingData')) {
+        this.rowData = this.rowData.concat(this.commonService.getDataFromLocalStorage('existingData'));
+      }
+      if (this.commonService.getDataFromLocalStorage('addingData')) {
+        this.rowData = this.rowData.concat(this.commonService.getDataFromLocalStorage('addingData'));
+      }
+      this.spinner.hide();
+    }
   }
 
   private checkOnlineStatus() {
     this.isOnline = navigator.onLine;
+    this.networkStatus$ = merge(
+      of(null),
+      fromEvent(window, 'online'),
+      fromEvent(window, 'offline')
+    )
+      .pipe(map(() => navigator.onLine))
+      .subscribe(status => {
+        console.log('status', status);
+        this.isOnline = status;
+      });
+      if (this.isOnline) {
+        this.syncData();
+      }
   }
 
-  private updateOnlineStatus() {
-    this.checkOnlineStatus();
+  private syncData() {
+    let addData = this.commonService.getDataFromLocalStorage('addingData');
+    let updateData = this.commonService.getDataFromLocalStorage('updatingData');
+    let removeData = this.commonService.getDataFromLocalStorage('deletingData');
+
+    addData = addData.length==0?[]:[addData];
+    updateData = updateData.length==0?[]:[updateData];
+    removeData =removeData.length==0?[]:[removeData];
+    if (addData&&addData.length>0) {
+      for (let data of addData) {
+        this.spinner.show();
+        this.commonService.createUser(data).subscribe((result: any) => {
+          if (result) {
+            this.spinner.hide();
+            this.getUsers();
+          }
+        });
+      }
+      alert("User(s) created successfully");
+      this.commonService.removeDataFromLocalStorage('addingData');
+    }
+    if (updateData&&updateData.length>0) {
+      for (let data of updateData) {
+        this.spinner.show();
+        this.commonService.updateUser(data.id, data).subscribe((result: any) => {
+          if (result) {
+            this.spinner.hide();
+            this.router.navigate(['/employees']);
+          }
+        });
+      }
+      alert("User(s) record updated successfully");
+      this.commonService.removeDataFromLocalStorage('updatingData');
+    }
+
+    if (removeData&&removeData.length>0) {
+      for (let data of removeData) {
+        this.spinner.show();
+        this.commonService.delete('users', data.id).subscribe((result: any) => {
+          if (result == null) {
+            this.spinner.hide();
+            this.getUsers();
+          }
+        });
+      }
+      alert("User(s) record deleted successfully");
+      this.commonService.removeDataFromLocalStorage('deletingData');
+    }
   }
-  // agInit(params: any): void {
-  //   this.params = params;
-  // }
    // Method to add a new row
    addNewRow() {
-    // Create a new row object
-    const newRow = {
-      // Set your column values for the new row
-      // For example:
-      id: this.rowData.length + 1,
-      name: '',
-      age:0,
-      gender:"",
-      department:"",
-      location:""
-      // Add other columns as needed
-    };
-
-    // Add the new row to the data source
-    this.rowData = [...this.rowData, newRow];
-
-    // Refresh the grid
-    this.gridOptions.api?.setRowData(this.rowData);
-    alert("New Row added");
+    localStorage.removeItem('editUser');
+    this.router.navigate(['/adduser']);
   }
 
-  // Method to save edited row
-  onCellEditingStopped(event: any) {
-    // event.data contains the edited row
-    // You can perform any necessary updates or save data to the backend here
-    console.log('Row updated:', event.data);
-    alert("Data updated");
+  editSelectedRow(){
+    let selectedRows:any=[];
+    selectedRows=this.gridOptions.api?.getSelectedRows();
+    if (selectedRows?.length > 0) {
+      localStorage.setItem('editUser',JSON.stringify(selectedRows[0]));
+      this.router.navigate(['/edituser'])
+    } else {
+      console.log('No row selected for edit.');
+      alert("No row selected for edit.");
+    }
   }
 
   deleteSelectedRow() {
     let selectedRows:any=[];
     selectedRows=this.gridOptions.api?.getSelectedRows();
-
     if (selectedRows?.length > 0) {
-      const selectedRowId = selectedRows[0].id; // Assuming 'id' is your unique identifier
-      this.rowData = this.rowData.filter((row:any) => row.id !== selectedRowId);
-      this.gridOptions.api?.setRowData(this.rowData);
-      alert("Selected data removed");
+      if (confirm("Do you want to delete this record?")== true) {
+        if(this.isOnline){
+          this.spinner.show();
+          this.commonService.delete('users',selectedRows[0].id).subscribe((result: any) => {
+            if (result==null) {
+              alert("User record deleted successfully");
+              this.getUsers();
+              this.spinner.hide();
+            }
+          });
+        }else{
+          const offlineData = this.commonService.getDataFromLocalStorage('existingData');
+          const updatedData = offlineData.filter((item:any) => item.id !== selectedRows[0].id);
+          const deleteData=offlineData.filter((item:any)=>item.id === selectedRows[0].id);
+          this.commonService.saveDataToLocalStorage('existingData',updatedData);
+          this.commonService.saveDataToLocalStorage('deletingData',deleteData);
+          this.getUsers();
+        }
+      } else {
+        
+      }
     } else {
       console.log('No row selected for deletion.');
       alert("No row selected for deletion.");
     }
+  }
+
+  ngOnDestroy(){
+    this.networkStatus$.unsubscribe();
   }
 }

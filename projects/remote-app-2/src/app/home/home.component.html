@@ -1,0 +1,139 @@
+<div class="container">
+    <div class="register col-md-5 col-sm-6">
+      <h1 class="title"><strong>Bio Data</strong>
+      </h1>
+  
+      <form role="form" #bioDataForm="ngForm" (ngSubmit)="bioDataForm.form.valid&&bioData.id?updateForm(bioData):submitForm(bioData)" novalidate>
+        <div class="form-group">
+          <label class="reg_txt">Name <span>*</span></label>
+          <div class="controls form-inline">
+            <input type="text" class="input-name" name="firstName" [(ngModel)]="bioData.firstName" #firstName="ngModel"  placeholder="First" required>
+            <input type="text" class="input-name" name="lastName" [(ngModel)]="bioData.lastName" #lastName="ngModel"  placeholder="Last" required>
+          </div>
+          <div class="controls form-inline">
+            <div *ngIf="firstName.touched && firstName.invalid">
+              <div *ngIf="firstName.errors?.['required']" class="text-danger">First name  is required</div>
+          </div>
+          <div *ngIf="lastName.touched && lastName.invalid" style="margin-left:60px;" >
+            <div *ngIf="lastName.errors?.['required']" class="text-danger">Last name is required</div>
+        </div>
+          </div>
+        </div>
+        <div class="clearfix"></div>
+  
+        <div class="form-group">
+          <label class="reg_txt">Email <span>*</span></label>
+          <input type="email" class="form-register text" name="email" id="" [(ngModel)]="bioData.email" #email="ngModel" pattern="^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$"  placeholder="E-mail" required>
+          <div *ngIf="email.touched && email.invalid" >
+            <div *ngIf="email.errors?.['required']" class="text-danger">Email is required</div>
+            <div *ngIf="email.errors?.['pattern']" class="text-danger">Email is invalid</div>
+        </div>
+        </div>
+        <div class="clearfix"></div>
+  
+        <div class="form-group" style="height:70px;">
+          <label class="reg_txt">Phone Number <span>*</span></label>
+          <div class="clearfix"></div>
+          <div class="wsite-form">
+            <input type="text" name="phoneNumber1" #ph1 [(ngModel)]="bioData.phoneNumber" #phNum1="ngModel"  class="text input-name1" pattern="^[0-9]*$" maxlength="3" (keyup)="autoFocus($event,'',ph1,ph2)" required>
+            <div *ngIf="phNum1.touched && phNum1.invalid" >
+              <div *ngIf="phNum1.errors?.['required']" class="text-danger">Phone number is required</div>
+              <div *ngIf="phNum1.errors?.['pattern']" class="text-danger">Numbers only allowed</div>
+          </div>
+          </div>
+          <div class="line">-</div>
+          <div class="wsite-form">
+            <input type="text" name="phoneNumber2"  #ph2 [(ngModel)]="bioData.phoneNumber2" #phNum2="ngModel"  class="text input-name1" pattern="^[0-9]*$" maxlength="3" (keyup)="autoFocus($event,ph1,ph2,ph3)" required>
+            <div *ngIf="phNum2.touched && phNum2.invalid" >
+              <div *ngIf="phNum2.errors?.['required']" class="text-danger">Phone number is required</div>
+              <div *ngIf="phNum2.errors?.['pattern']" class="text-danger">Numbers only allowed</div>
+          </div>
+          </div>
+          <div class="line">-</div>
+          <div class="wsite-form">
+            <input type="text" name="phoneNumber3"  #ph3 [(ngModel)]="bioData.phoneNumber3" #phNum3="ngModel"  class="text input-name1" pattern="^[0-9]*$" maxlength="4" (keyup)="autoFocus($event,ph2,ph3,'')" required>
+            <div *ngIf="phNum3.touched && phNum3.invalid" >
+              <div *ngIf="phNum3.errors?.['required']" class="text-danger">Phone number is required</div>
+              <div *ngIf="phNum3.errors?.['pattern']" class="text-danger">Numbers only allowed</div>
+          </div>
+          </div>
+  
+        </div>
+  
+        <div class="clearfix"></div>
+  
+        <div class="form-group">
+          <label class="reg_txt">Address <span>*</span></label>
+          <input type="text" class="form-register text" name="address1" [(ngModel)]="bioData.address1" #add1="ngModel" id="" placeholder="Line 1"  style="margin-bottom:15px;" required>
+          <div *ngIf="add1.touched && add1.invalid" >
+            <div *ngIf="add1.errors?.['required']" class="text-danger">Address 1 is required</div>
+        </div>
+          <input type="text" class="form-register text" name="address2" [(ngModel)]="bioData.address2" #add2="ngModel" id="" placeholder="Line 2"  required>
+          <div *ngIf="add2.touched && add2.invalid" >
+            <div *ngIf="add2.errors?.['required']" class="text-danger">Address 2 is required</div>
+        </div>
+        </div>
+  
+        <div class="form-group">
+          <div class="controls form-inline">
+            <input type="text" class="input-name" name="city" [(ngModel)]="bioData.city" #city="ngModel" placeholder="City"  required>
+           
+            <input type="text" class="input-name" name="state" [(ngModel)]="bioData.state" #state="ngModel" placeholder="State"  required>
+            
+          </div>
+          <div class="controls form-inline">
+            <div *ngIf="city.touched && city.invalid" >
+              <div *ngIf="city.errors?.['required']" class="text-danger">City is required</div>
+          </div>
+          <div *ngIf="state.touched && state.invalid" style="margin-left:60px;">
+            <div *ngIf="state.errors?.['required']" class="text-danger">State is required</div>
+        </div>
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <div class="controls form-inline">
+            <input type="text" class="input-name" name="zipCode" [(ngModel)]="bioData.zipCode" #zipCode="ngModel" placeholder="Zip Code"  required>
+            <input type="text" class="input-name" name="country" [(ngModel)]="bioData.country" #country="ngModel" placeholder="Country"  required>
+            
+          </div>
+          <div class="controls form-inline">
+            <div *ngIf="zipCode.touched && zipCode.invalid" >
+              <div *ngIf="zipCode.errors?.['required']" class="text-danger">Zipcode is required</div>
+          </div>
+          <div *ngIf="country.touched && country.invalid" style="margin-left:60px;">
+            <div *ngIf="country.errors?.['required']" class="text-danger">Country is required</div>
+        </div>
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label class="reg_txt">Write Your qualification <span>*</span></label>
+          <input type="text" class="form-register text" name="qualification" [(ngModel)]="bioData.qualification" #qualification="ngModel" id="" placeholder="" style="margin-bottom:15px;"  required>
+          <div *ngIf="qualification.touched && qualification.invalid" >
+            <div *ngIf="qualification.errors?.['required']" class="text-danger">Qualification is required</div>
+        </div>
+          <!-- <input type="text" class="form-register text" id="" placeholder="Add your qualification"> <span><img alt="" src="images/plus.png" class="add"></span> -->
+        </div>
+  
+  
+        <div class="clearfix"></div>
+  
+        <div class="form-group">
+          <label class="reg_txt">Comment <span>*</span></label>
+          <textarea class="form-register text" name="comments" [(ngModel)]="bioData.comments" #comments="ngModel"  required></textarea>
+          <div *ngIf="comments.touched && comments.invalid" >
+            <div *ngIf="comments.errors?.['required']" class="text-danger">Comment is required</div>
+        </div>
+        </div>
+  
+        <div class="form-group">
+          <button type="submit" class="btn btn-outline-primary" [ngClass]="{'disableButton':bioDataForm.form.invalid}" style="width:97%;margin-bottom: 20px;" [disabled]="bioDataForm.form.invalid">Submit</button>
+          <button type="button" class="btn btn-outline-secondary" style="width:97%;" (click)="resetForm()">Clear</button>
+        </div>
+      </form>
+  
+    </div>
+    </div>
+
+    <ngx-spinner type="ball-scale-multiple"></ngx-spinner>

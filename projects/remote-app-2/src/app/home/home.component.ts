@@ -31,6 +31,8 @@ export class HomeComponent implements OnInit {
   users:any=[];
   bioDataForm:any= FormGroup;
   isOnline: boolean = true;
+  addData:any=[];
+  updateData:any=[];
   constructor(private _httpService:HttpService,private router:Router,private spinner:NgxSpinnerService) {}
 
   ngOnInit(){
@@ -42,6 +44,10 @@ export class HomeComponent implements OnInit {
       localStorage.removeItem('editUser');
       this.editUser(JSON.parse(user));
     }
+    this.addData=this._httpService.getDataFromLocalStorage('addingData');
+    console.log(this.addData)
+    this.updateData=this._httpService.getDataFromLocalStorage('updatingData');
+    console.log(this.updateData)
   }
 
   private checkOnlineStatus() {
@@ -77,8 +83,8 @@ export class HomeComponent implements OnInit {
         }
       });
     } else {
-      const updatedData = formData;
-      this._httpService.saveDataToLocalStorage('addingData', updatedData);
+      this.addData.push(formData);
+      this._httpService.saveDataToLocalStorage('addingData', this.addData);
       this.router.navigate(['/employees']);
     } 
   }
@@ -100,8 +106,9 @@ export class HomeComponent implements OnInit {
       const index = offlineData.findIndex((item: any) => item.id === formData.id);
       if (index !== -1) {
         offlineData[index] = formData;
+        this.updateData.push(offlineData[index]);
         this._httpService.saveDataToLocalStorage('existingData',offlineData);
-        this._httpService.saveDataToLocalStorage('updatingData',offlineData[index]);
+        this._httpService.saveDataToLocalStorage('updatingData',this.updateData);
         this.router.navigate(['/employees']);
       }
     }

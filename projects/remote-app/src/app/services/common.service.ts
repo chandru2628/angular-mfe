@@ -29,7 +29,7 @@ export class CommonService {
     delete userData.phoneNumber2;
     delete userData.phoneNumber3;
     delete userData.id;
-    return this.http.post<any>(this.url+ "users/",userData)
+    return this.http.post<any>(this.url+ "/users",userData)
       .pipe(catchError(this.handleError));
   }
 
@@ -38,7 +38,7 @@ export class CommonService {
     delete userData.phoneNumber2;
     delete userData.phoneNumber3;
     delete userData.id;
-    return this.http.put(this.url+ "users/"+id,userData)
+    return this.http.put(this.url+ "/users/"+id,userData)
       .pipe(catchError(this.handleError));
   }
 

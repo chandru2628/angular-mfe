@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component,OnInit } from '@angular/core';
 import { GridOptions } from "ag-grid-community";
 import { CommonService } from '../services/common.service';
 import { Router } from '@angular/router';
@@ -12,14 +12,14 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./remotes.component.css']
 })
 
-export class RemotesComponent implements OnInit,OnDestroy{
+export class RemotesComponent implements OnInit{
   gridOptions: GridOptions;
   params: any;
   rowData:any=[];
   columnDefs:any=[];
   rowSelection: 'single' | 'multiple' = 'single';
   isOnline: boolean=false;
-  networkStatus$: Subscription = Subscription.EMPTY;
+  deleteData: any=[];
   constructor(private commonService:CommonService,private router:Router, private spinner:NgxSpinnerService) {
     this.gridOptions = <GridOptions>{
       enableSorting: true,
@@ -28,11 +28,6 @@ export class RemotesComponent implements OnInit,OnDestroy{
       rowSelection: 'single'
     };
     this.columnDefs = [
-      {
-        headerName: "ID",
-        field: "id",
-        width: 100
-      },
       {
         headerName: "First Name",
         field: "firstName",
@@ -100,7 +95,11 @@ export class RemotesComponent implements OnInit,OnDestroy{
   ngOnInit() {
     // Check online/offline status when the component is initialized
     this.checkOnlineStatus();
+    window.addEventListener('online', () => this.updateOnlineStatus());
+    window.addEventListener('offline', () => this.updateOnlineStatus());
     this.getUsers();
+    this.deleteData=this.commonService.getDataFromLocalStorage('deletingData');
+    console.log(this.deleteData)
   }
 
   private getUsers() {
@@ -132,19 +131,14 @@ export class RemotesComponent implements OnInit,OnDestroy{
 
   private checkOnlineStatus() {
     this.isOnline = navigator.onLine;
-    this.networkStatus$ = merge(
-      of(null),
-      fromEvent(window, 'online'),
-      fromEvent(window, 'offline')
-    )
-      .pipe(map(() => navigator.onLine))
-      .subscribe(status => {
-        console.log('status', status);
-        this.isOnline = status;
-      });
-      if (this.isOnline) {
-        this.syncData();
-      }
+    if (this.isOnline) {
+      this.syncData();
+    }
+  }
+
+
+  private updateOnlineStatus() {
+    this.checkOnlineStatus();
   }
 
   private syncData() {
@@ -156,7 +150,7 @@ export class RemotesComponent implements OnInit,OnDestroy{
     updateData = updateData.length==0?[]:[updateData];
     removeData =removeData.length==0?[]:[removeData];
     if (addData&&addData.length>0) {
-      for (let data of addData) {
+      for (let data of addData[0]) {
         this.spinner.show();
         this.commonService.createUser(data).subscribe((result: any) => {
           if (result) {
@@ -169,7 +163,7 @@ export class RemotesComponent implements OnInit,OnDestroy{
       this.commonService.removeDataFromLocalStorage('addingData');
     }
     if (updateData&&updateData.length>0) {
-      for (let data of updateData) {
+      for (let data of updateData[0]) {
         this.spinner.show();
         this.commonService.updateUser(data.id, data).subscribe((result: any) => {
           if (result) {
@@ -183,7 +177,7 @@ export class RemotesComponent implements OnInit,OnDestroy{
     }
 
     if (removeData&&removeData.length>0) {
-      for (let data of removeData) {
+      for (let data of removeData[0]) {
         this.spinner.show();
         this.commonService.delete('users', data.id).subscribe((result: any) => {
           if (result == null) {
@@ -231,9 +225,10 @@ export class RemotesComponent implements OnInit,OnDestroy{
         }else{
           const offlineData = this.commonService.getDataFromLocalStorage('existingData');
           const updatedData = offlineData.filter((item:any) => item.id !== selectedRows[0].id);
-          const deleteData=offlineData.filter((item:any)=>item.id === selectedRows[0].id);
+          const data=offlineData.filter((item:any)=>item.id === selectedRows[0].id);
+          this.deleteData.push(data);
           this.commonService.saveDataToLocalStorage('existingData',updatedData);
-          this.commonService.saveDataToLocalStorage('deletingData',deleteData);
+          this.commonService.saveDataToLocalStorage('deletingData',this.deleteData);
           this.getUsers();
         }
       } else {
@@ -243,9 +238,5 @@ export class RemotesComponent implements OnInit,OnDestroy{
       console.log('No row selected for deletion.');
       alert("No row selected for deletion.");
     }
-  }
-
-  ngOnDestroy(){
-    this.networkStatus$.unsubscribe();
   }
 }
